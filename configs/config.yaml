@@ -19,4 +19,4 @@
 "sample_size": 40000
 "tracking_uri": "sqlite:///mlflow.db"
 "experiment_name": "olympic_medal_multiclass"
-"artifact_path": "models/best_medal_model.joblib"
+"artifact_path": "models/best_medal_model.plk"

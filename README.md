@@ -25,7 +25,7 @@ Put `athlete_events.csv` in `data/` before training. No API key is required. Sta
 
 `Natural-language query → parser/LLM → feature validation → saved sklearn pipeline → probability → LLM/local explanation`
 
-`src/train.py` writes the selected pipeline to `models/best_medal_model.joblib`. The pipeline contains preprocessing and the classifier, so inference applies exactly the transformations learned from the training data.
+`src/train.py` writes the selected pipeline to `models/best_medal_model.plk`. The pipeline contains preprocessing and the classifier, so inference applies exactly the transformations learned from the training data.
 
 ## Results
 

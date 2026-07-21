@@ -1,7 +1,7 @@
 """Train the original four-class Olympic medal models with MLflow."""
 from __future__ import annotations
 from pathlib import Path
-import joblib, yaml
+import pickle, yaml
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
@@ -64,7 +64,10 @@ def train_all(config=None):
             results.append({"name": model_type, "run_id": run.info.run_id, "metrics": metrics, "model": model})
             print(f"{model_type}: " + ", ".join(f"{key}={value:.3f}" for key, value in metrics.items()))
     best = max(results, key=lambda result: result["metrics"]["auc_roc"])
-    path = ROOT / config["artifact_path"]; path.parent.mkdir(exist_ok=True); joblib.dump(best["model"], path)
+    path = ROOT / config["artifact_path"]
+    path.parent.mkdir(exist_ok=True)
+    with open(path, "wb") as file:
+        pickle.dump(best["model"], file)
     print(f"Best model: {best['name']} → {path}"); return results
 
 if __name__ == "__main__": train_all()

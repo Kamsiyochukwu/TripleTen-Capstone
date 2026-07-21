@@ -1,0 +1,5 @@
+outs:
+- md5: 2be110cd5bcb8cbbc8d684019c727ef5
+  size: 812397
+  hash: md5
+  path: best_medal_model.plk

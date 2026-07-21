@@ -3,7 +3,7 @@
 __pycache__/
 .pytest_cache/
 data/*.csv
-models/
+models/*.plk
 mlruns/
 mlflow.db
 *.pyc

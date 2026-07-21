@@ -2,7 +2,7 @@
 from __future__ import annotations
 import re, sys
 from pathlib import Path
-import joblib
+import pickle
 try:  # Supports both `python src/app.py` and package imports in tests.
     from src.train import read_config
 except ModuleNotFoundError:
@@ -39,7 +39,10 @@ def predict(values, model=None):
     valid, missing = validate_features(values)
     if not valid: raise ValueError("Missing: " + ", ".join(missing))
     import pandas as pd
-    config = read_config(); model = model or joblib.load(ROOT / config["artifact_path"])
+    config = read_config()
+    if model is None:
+        with open(ROOT / config["artifact_path"], "rb") as file:
+            model = pickle.load(file)
     row = pd.DataFrame([{ "Age": values["age"], "Height": values["height"], "Weight": values["weight"], "Year": values["year"], "Sex": values["sex"], "Season": values["season"], "Sport": values["sport"] }])
     probabilities = model.predict_proba(row)[0]; classes = model.named_steps["model"].classes_
     return {MEDALS[int(label)]: float(probability) for label, probability in zip(classes, probabilities)}
