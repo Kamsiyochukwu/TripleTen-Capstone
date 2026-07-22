@@ -1,6 +1,9 @@
 """Programmatically compare original Olympic-model MLflow runs."""
 import mlflow
-from train import read_config
+try:
+    from src.train import read_config
+except ModuleNotFoundError:
+    from train import read_config
 def best_run():
     config = read_config(); mlflow.set_tracking_uri(config["tracking_uri"])
     experiment = mlflow.get_experiment_by_name(config["experiment_name"])

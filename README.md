@@ -4,9 +4,9 @@ An end-to-end machine-learning application that predicts an Olympic athlete entr
 
 ## What it does
 
-The training workflow retains the original four `Medal` classes, splits raw records before fitting any transformations, median-imputes numeric data, most-frequent-imputes and one-hot encodes categoricals, and scales numerical columns. It compares Logistic Regression, Random Forest, Gradient Boosting, a neural network, and a tuned Random Forest. Every run logs parameters, data description, metrics, and a model artifact to MLflow.
+The training workflow retains the original four `Medal` classes, splits raw records before fitting any transformations, median-imputes numeric data, most-frequent-imputes and one-hot encodes categoricals, and scales numerical columns. It intentionally excludes identifiers, athlete names, team, host city, games label, and event fields: these are either identifiers, overly specific for conversational input, or likely to overfit historical outcomes. It compares Logistic Regression, Random Forest, Gradient Boosting, a neural network, and a tuned Random Forest. Every run logs parameters, data description, metrics, and a model artifact to MLflow.
 
-The Streamlit interface accepts plain English such as: “I am a 24 year old female swimmer, 172 cm and 63 kg, competing in 2016 Summer.” It extracts and validates the model fields locally, invokes the saved sklearn pipeline, and gives a class probability with limitations. No API key or external LLM is required.
+The Streamlit interface accepts plain English such as: “I am a 24 year old female swimmer, 172 cm and 63 kg, competing in 2016 Summer.” When `NEBIUS_API_KEY` is configured, Nebius AI Studio extracts the model fields and explains the result. The app uses a deterministic local parser and response fallback when no key is present, which keeps demos and tests functional offline.
 
 ## Setup
 
@@ -19,7 +19,7 @@ python -m src.train
 streamlit run src/app.py
 ```
 
-Put `athlete_events.csv` in `data/` before training. No API key is required. Start the MLflow dashboard with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
+Put `athlete_events.csv` in `data/` before training. Copy `.env.example` to `.env` and add `NEBIUS_API_KEY` to enable the LLM layer; never commit `.env`. Start the MLflow dashboard with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
 
 ## Workflow
 
@@ -59,7 +59,7 @@ Put `athlete_events.csv` in `data/` before training. No API key is required. Sta
 
 ## Results
 
-Run `python -m src.train` to generate the final four-class results. `python -m src.evaluate` calls `mlflow.search_runs()` and ranks all five configurations by weighted one-vs-rest ROC-AUC. Accuracy, weighted precision, weighted recall, weighted F1, and ROC-AUC are logged. Medal classes are heavily imbalanced, so the weighted metrics must be interpreted alongside the class distribution; this estimate is not a causal assessment of an athlete.
+The best tracked run is **Gradient Boosting**, selected by weighted one-vs-rest ROC-AUC: **0.693**. On its held-out split it achieved 0.856 accuracy, 0.794 weighted precision, 0.856 weighted recall, and 0.793 weighted F1. `python -m src.evaluate` calls `mlflow.search_runs()` and ranks all five configurations by weighted ROC-AUC. Medal classes are heavily imbalanced, so the weighted metrics must be interpreted alongside the class distribution; this estimate is not a causal assessment of an athlete.
 
 ## Tests and reflection
 

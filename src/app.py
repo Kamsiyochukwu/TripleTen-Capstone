@@ -1,6 +1,6 @@
 """Natural-language interface for the original Olympic medal-classification model."""
 from __future__ import annotations
-import re, sys
+import json, os, re, sys
 from pathlib import Path
 import pickle
 try:  # Supports both `python src/app.py` and package imports in tests.
@@ -32,8 +32,35 @@ def validate_features(values):
     return not missing, missing
 
 def parse_query(text):
-    """Extract model fields locally without any external LLM or API dependency."""
+    """Use Nebius to extract fields when configured, with a local safe fallback."""
+    response = nebius_chat(
+        "Extract Olympic medal-model fields from the user message. Return JSON only with available keys: "
+        "age (integer), height (cm number), weight (kg number), year (integer), sex ('M' or 'F'), "
+        "season ('Summer' or 'Winter'), sport (official sport name). Do not guess missing values.\n"
+        f"User message: {text}", temperature=0)
+    if response:
+        try:
+            parsed = json.loads(response.removeprefix("```json").removesuffix("```").strip())
+            return {key: parsed[key] for key in REQUIRED if key in parsed and parsed[key] is not None}
+        except (json.JSONDecodeError, TypeError):
+            pass
     return parse_query_locally(text)
+
+def nebius_chat(prompt, temperature=0.2):
+    """Call Nebius directly without a provider SDK."""
+    api_key = os.getenv("NEBIUS_API_KEY")
+    if not api_key:
+        return None
+    try:
+        import requests
+        response = requests.post(os.getenv("NEBIUS_BASE_URL", "https://api.studio.nebius.ai/v1/chat/completions"),
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={"model": os.getenv("NEBIUS_MODEL", "meta-llama/Meta-Llama-3.1-8B-Instruct"),
+                  "messages": [{"role": "user", "content": prompt}], "temperature": temperature}, timeout=20)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"].strip()
+    except Exception:
+        return None
 
 def predict(values, model=None):
     valid, missing = validate_features(values)
@@ -53,7 +80,9 @@ def respond(text, model=None):
     try: probabilities = predict(values, model)
     except FileNotFoundError: return "The model artifact is not available yet. Run `python -m src.train`, then try again."
     predicted = max(probabilities, key=probabilities.get)
-    return f"The model predicts **{predicted}** ({probabilities[predicted]:.1%} probability). This is a historical classification pattern, not a guarantee; competition, qualification, and event-specific factors are not represented."
+    fallback = f"The model predicts **{predicted}** ({probabilities[predicted]:.1%} probability). This is a historical classification pattern, not a guarantee; competition, qualification, and event-specific factors are not represented."
+    return nebius_chat("Explain this model result in two concise sentences. Include the predicted medal class and "
+                       f"probability, state it is not a guarantee, and do not add unsupported facts. Result: {fallback}") or fallback
 
 def run_streamlit():
     try:

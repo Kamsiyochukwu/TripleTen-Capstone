@@ -58,7 +58,13 @@ def train_all(config=None):
         with mlflow.start_run(run_name=model_type) as run:
             model, X_test, y_test, test_size = _train_for_type(config, model_type)
             metrics = calculate_metrics(model, X_test, y_test)
-            mlflow.log_params({"model_type": model_type, "data_rows": len(X_test) / test_size, "data_version": "athlete_events.csv", "test_size": test_size, "handle_missing": config["handle_missing"], "scale_features": config["scale_features"]})
+            estimator_params = model.named_steps["model"].get_params(deep=False)
+            serializable_params = {f"model_{key}": value for key, value in estimator_params.items()
+                                   if isinstance(value, (str, int, float, bool)) or value is None}
+            mlflow.log_params({"model_type": model_type, "data_rows": len(X_test) / test_size,
+                               "data_version": "athlete_events.csv", "test_size": test_size,
+                               "handle_missing": config["handle_missing"], "scale_features": config["scale_features"],
+                               **serializable_params})
             mlflow.log_metrics(metrics)
             mlflow.sklearn.log_model(model, "model", serialization_format="cloudpickle")
             results.append({"name": model_type, "run_id": run.info.run_id, "metrics": metrics, "model": model})
