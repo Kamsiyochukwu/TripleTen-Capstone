@@ -21,6 +21,36 @@ streamlit run src/app.py
 
 Put `athlete_events.csv` in `data/` before training. No API key is required. Start the MLflow dashboard with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
 
+## Workflow
+
+1. Train and log the model experiments:
+
+   ```bash
+   python -m src.train
+   ```
+
+   This evaluates the configured model types, logs each run to MLflow, selects the best weighted ROC-AUC, and saves it as `models/best_medal_model.plk`.
+
+2. Compare the tracked experiments:
+
+   ```bash
+   python -m src.evaluate
+   ```
+
+3. Use the application:
+
+   ```bash
+   streamlit run src/app.py
+   ```
+
+   If Streamlit is not installed, run `python src/app.py` for the terminal interface instead.
+
+4. Validate changes before committing:
+
+   ```bash
+   pytest tests/ -v
+   ```
+
 ## Architecture
 
 `Natural-language query → parser/LLM → feature validation → saved sklearn pipeline → probability → LLM/local explanation`
