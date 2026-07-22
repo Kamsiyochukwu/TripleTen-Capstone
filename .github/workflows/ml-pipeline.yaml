@@ -33,6 +33,7 @@ jobs:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           test -n "$DAGSHUB_USERNAME" && test -n "$DAGSHUB_TOKEN"
+          dvc remote add --force --default origin https://dagshub.com/Kamsiyochukwu/TripleTen-Capstone.dvc
           dvc remote modify origin --local auth basic
           dvc remote modify origin --local user "$DAGSHUB_USERNAME"
           dvc remote modify origin --local password "$DAGSHUB_TOKEN"
@@ -66,6 +67,7 @@ jobs:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           test -n "$DAGSHUB_USERNAME" && test -n "$DAGSHUB_TOKEN"
+          dvc remote add --force --default origin https://dagshub.com/Kamsiyochukwu/TripleTen-Capstone.dvc
           dvc remote modify origin --local auth basic
           dvc remote modify origin --local user "$DAGSHUB_USERNAME"
           dvc remote modify origin --local password "$DAGSHUB_TOKEN"

@@ -1,2 +1,5 @@
+['core']
+    remote = origin
+
 ['remote "origin"']
     url = https://dagshub.com/Kamsiyochukwu/TripleTen-Capstone.dvc
