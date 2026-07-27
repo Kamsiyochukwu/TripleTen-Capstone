@@ -15,11 +15,13 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-python -m src/train
-streamlit run src/app.py --cli
+python src/train.py
+streamlit run src/app.py
 ```
 
 Put `athlete_events.csv` in `data/` before training. Copy `.env.example` to `.env` and add `NEBIUS_API_KEY` to enable the LLM layer; never commit `.env`. Start the MLflow dashboard with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
+
+Use `streamlit run src/app.py` exactly for the web interface. The `--cli` flag is only for the terminal command, `python src/app.py --cli`.
 
 ## Workflow
 
