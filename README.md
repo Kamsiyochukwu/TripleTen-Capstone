@@ -43,7 +43,7 @@ Put `athlete_events.csv` in `data/` before training. Copy `.env.example` to `.en
    streamlit run src/app.py
    ```
 
-   If Streamlit is not installed, run `python src/app.py` for the terminal interface instead.
+   For the terminal interface instead, run `python src/app.py --cli`.
 
 4. Validate changes before committing:
 

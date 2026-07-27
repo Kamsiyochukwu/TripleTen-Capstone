@@ -112,6 +112,8 @@ def run_cli():
             print("\nPredictor:", respond(query))
 
 if __name__ == "__main__":
-    # `streamlit run src/app.py` keeps "run" in argv; direct Python execution
-    # intentionally uses the dependency-free terminal mode.
-    run_streamlit() if "run" in sys.argv else run_cli()
+    # Always initialize the Streamlit page when this module is the app entry
+    # point.  Deployment providers do not guarantee that ``run`` is preserved
+    # in sys.argv, which otherwise leaves the page with no Streamlit elements.
+    # The terminal fallback remains available explicitly when needed.
+    run_cli() if "--cli" in sys.argv else run_streamlit()
