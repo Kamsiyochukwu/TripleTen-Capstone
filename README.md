@@ -15,8 +15,8 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-python -m src.train
-streamlit run src/app.py
+python -m src/train
+streamlit run src/app.py --cli
 ```
 
 Put `athlete_events.csv` in `data/` before training. Copy `.env.example` to `.env` and add `NEBIUS_API_KEY` to enable the LLM layer; never commit `.env`. Start the MLflow dashboard with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
